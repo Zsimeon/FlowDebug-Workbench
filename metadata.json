@@ -1,0 +1,5 @@
+{
+  "name": "FlowDebug Workbench",
+  "description": "A high-fidelity website debugging and creation workbench inspired by Flowspace. Features a dashboard, issue tracking, inspiration collection, and an AI-powered code analysis workshop.",
+  "requestFramePermissions": []
+}
