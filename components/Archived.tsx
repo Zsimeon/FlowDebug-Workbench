@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { Archive, FolderOpen, Hash, FileText } from 'lucide-react';
+import React, { useMemo, useState } from 'react';
+import { Archive, FolderOpen, Hash, FileText, Search, X } from 'lucide-react';
 import { DraftItem } from '../types';
 
 interface ArchivedProps {
@@ -8,13 +8,24 @@ interface ArchivedProps {
 }
 
 export const Archived: React.FC<ArchivedProps> = ({ items = [], onView }) => {
+    const [searchQuery, setSearchQuery] = useState('');
+
+    // Filter items first based on search query
+    const filteredItems = useMemo(() => {
+        if (!searchQuery.trim()) return items;
+        const query = searchQuery.toLowerCase();
+        return items.filter(item => 
+            item.title.toLowerCase().includes(query) || 
+            item.tags?.some(tag => tag.toLowerCase().includes(query))
+        );
+    }, [items, searchQuery]);
     
-    // Group items by tags
+    // Group filtered items by tags
     const groupedItems = useMemo(() => {
         const groups: Record<string, DraftItem[]> = {};
         const untagged: DraftItem[] = [];
 
-        items.forEach(item => {
+        filteredItems.forEach(item => {
             if (!item.tags || item.tags.length === 0) {
                 untagged.push(item);
             } else {
@@ -31,12 +42,13 @@ export const Archived: React.FC<ArchivedProps> = ({ items = [], onView }) => {
         // Sort keys alphabetically
         const sortedKeys = Object.keys(groups).sort();
         return { groups, sortedKeys, untagged };
-    }, [items]);
+    }, [filteredItems]);
 
     const totalDocs = items.length;
 
     return (
-         <div className="space-y-8 animate-fade-in max-w-6xl mx-auto pb-20">
+         <div className="space-y-6 animate-fade-in max-w-6xl mx-auto pb-20">
+             {/* Header */}
              <div className="flex items-end justify-between border-b border-slate-800 pb-6">
                 <div>
                     <h2 className="text-2xl font-bold text-white flex items-center gap-2">
@@ -50,11 +62,37 @@ export const Archived: React.FC<ArchivedProps> = ({ items = [], onView }) => {
                 </div>
             </div>
 
+            {/* Search Bar */}
+            <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+                <input 
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search by tag or title..."
+                    className="w-full bg-slate-900 border border-slate-800 rounded-xl py-3 pl-10 pr-10 text-slate-200 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500/50 transition-all placeholder:text-slate-600 shadow-sm"
+                />
+                {searchQuery && (
+                    <button 
+                        onClick={() => setSearchQuery('')}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white"
+                    >
+                        <X size={16} />
+                    </button>
+                )}
+            </div>
+
+            {/* Empty States */}
             {items.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-20 bg-slate-900/30 border border-dashed border-slate-800 rounded-xl">
                     <FolderOpen size={48} className="text-slate-700 mb-4" />
                     <h3 className="text-slate-400 font-medium">Repository Empty</h3>
                     <p className="text-slate-600 text-sm mt-1">Start creating and tagging content to populate your archive.</p>
+                </div>
+            ) : filteredItems.length === 0 ? (
+                 <div className="flex flex-col items-center justify-center py-12 text-slate-500">
+                    <Search size={32} className="mb-3 opacity-20" />
+                    <p className="text-sm">No items found matching "<span className="text-slate-300">{searchQuery}</span>"</p>
                 </div>
             ) : (
                 <div className="space-y-10">

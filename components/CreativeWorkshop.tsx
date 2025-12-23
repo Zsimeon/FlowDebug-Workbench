@@ -179,12 +179,9 @@ export const CreativeWorkshop: React.FC<CreativeWorkshopProps> = ({ initialData,
         // Make drag image transparent or custom if desired, but default is usually fine
     };
 
-    const handleDragOver = (e: React.DragEvent, index: number) => {
+    const handleDragOver = (e: React.DragEvent) => {
         e.preventDefault(); // Necessary to allow dropping
         e.dataTransfer.dropEffect = "move";
-
-        // Optional: Implement live swapping here if desired, 
-        // but drop-swapping is safer for complex components
     };
 
     const handleDrop = (e: React.DragEvent, dropIndex: number) => {
@@ -765,7 +762,7 @@ export const CreativeWorkshop: React.FC<CreativeWorkshopProps> = ({ initialData,
                                     onClick={handleAddCard}
                                     draggable
                                     onDragStart={(e) => handleDragStart(e, index)}
-                                    onDragOver={(e) => handleDragOver(e, index)}
+                                    onDragOver={handleDragOver}
                                     onDrop={(e) => handleDrop(e, index)}
                                     className="w-20 h-96 rounded-2xl border-2 border-dashed border-slate-800 hover:border-primary-500 hover:bg-slate-900/50 flex flex-col items-center justify-center cursor-pointer transition-all group opacity-60 hover:opacity-100"
                                 >
@@ -782,7 +779,7 @@ export const CreativeWorkshop: React.FC<CreativeWorkshopProps> = ({ initialData,
                                 key={el.id}
                                 draggable
                                 onDragStart={(e) => handleDragStart(e, index)}
-                                onDragOver={(e) => handleDragOver(e, index)}
+                                onDragOver={handleDragOver}
                                 onDrop={(e) => handleDrop(e, index)}
                                 onClick={(e) => { e.stopPropagation(); setSelectedId(el.id); }}
                                 onDoubleClick={(e) => { e.stopPropagation(); openUnifiedEditor(); }}
